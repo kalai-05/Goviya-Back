@@ -1,0 +1,22 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: goviya-backend
+  datasource:
+    url: jdbc:postgresql://localhost:5432/goviya
+    username: postgres
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+
+# HS256 requires the secret payload to meet minimum byte lengths safely mapped over BASE64 
+jwt:
+  secret: c2VjcmV0LWtleS1tdXN0LWJlLWF0LWxlYXN0LTI1Ni1iaXRzLWxvbmctaW4tYmFzZTY0LWVuY29kaW5nLWdvdmk=
+  expirationMs: 86400000 
