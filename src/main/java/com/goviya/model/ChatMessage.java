@@ -22,6 +22,7 @@ public class ChatMessage {
     private String message;
     private Boolean isRead;
     private String orderId;
+    private String type; // TEXT, DEAL_PROPOSE, DEAL_ACCEPT, etc.
 
     private LocalDateTime sentAt;
 }
