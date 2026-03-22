@@ -29,18 +29,12 @@ public class AdminController {
         return "goviya-admin-2025".equals(adminKey);
     }
 
-    private ResponseEntity<ApiResponse<?>> unauthorized() {
-        return ResponseEntity.status(403)
-            .body(ApiResponse.error("Unauthorized"));
-    }
-
     // ─── STATS: Users ──────────────────────────────────────
     @GetMapping("/stats/users")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> 
-        getUserStats(
+    public ResponseEntity<?> getUserStats(
         @RequestHeader("X-Admin-Key") String adminKey) {
 
-        if (!isValidAdmin(adminKey)) return unauthorized();
+        if (!isValidAdmin(adminKey)) return ResponseEntity.status(403).body(ApiResponse.error("Unauthorized"));
 
         long totalUsers = userRepository.count();
         long farmers = userRepository.findByRole("FARMER").size();
@@ -59,11 +53,10 @@ public class AdminController {
 
     // ─── STATS: Orders + Revenue ───────────────────────────
     @GetMapping("/stats/orders")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> 
-        getOrderStats(
+    public ResponseEntity<?> getOrderStats(
         @RequestHeader("X-Admin-Key") String adminKey) {
 
-        if (!isValidAdmin(adminKey)) return unauthorized();
+        if (!isValidAdmin(adminKey)) return ResponseEntity.status(403).body(ApiResponse.error("Unauthorized"));
 
         List<Order> allOrders = orderRepository.findAll();
         long totalOrders = allOrders.size();
@@ -101,12 +94,11 @@ public class AdminController {
 
     // ─── STATS: Revenue Chart (last N days) ────────────────
     @GetMapping("/stats/revenue-chart")
-    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> 
-        getRevenueChart(
+    public ResponseEntity<?> getRevenueChart(
         @RequestHeader("X-Admin-Key") String adminKey,
         @RequestParam(defaultValue = "30") int days) {
 
-        if (!isValidAdmin(adminKey)) return unauthorized();
+        if (!isValidAdmin(adminKey)) return ResponseEntity.status(403).body(ApiResponse.error("Unauthorized"));
 
         List<Order> allOrders = orderRepository.findAll();
         List<Map<String, Object>> chartData = new ArrayList<>();
@@ -144,11 +136,10 @@ public class AdminController {
 
     // ─── STATS: Revenue by District ────────────────────────
     @GetMapping("/stats/revenue-by-district")
-    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> 
-        getRevenueByDistrict(
+    public ResponseEntity<?> getRevenueByDistrict(
         @RequestHeader("X-Admin-Key") String adminKey) {
 
-        if (!isValidAdmin(adminKey)) return unauthorized();
+        if (!isValidAdmin(adminKey)) return ResponseEntity.status(403).body(ApiResponse.error("Unauthorized"));
 
         List<Order> paidOrders = orderRepository
             .findAll().stream()
@@ -189,14 +180,13 @@ public class AdminController {
 
     // ─── ALL ORDERS (with filters) ─────────────────────────
     @GetMapping("/orders")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> 
-        getAllOrders(
+    public ResponseEntity<?> getAllOrders(
         @RequestHeader("X-Admin-Key") String adminKey,
         @RequestParam(required = false) String status,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "20") int limit) {
 
-        if (!isValidAdmin(adminKey)) return unauthorized();
+        if (!isValidAdmin(adminKey)) return ResponseEntity.status(403).body(ApiResponse.error("Unauthorized"));
 
         List<Order> orders = orderRepository.findAll();
 
@@ -234,14 +224,13 @@ public class AdminController {
 
     // ─── ALL USERS (with role filter) ─────────────────────
     @GetMapping("/users")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> 
-        getAllUsers(
+    public ResponseEntity<?> getAllUsers(
         @RequestHeader("X-Admin-Key") String adminKey,
         @RequestParam(required = false) String role,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "20") int limit) {
 
-        if (!isValidAdmin(adminKey)) return unauthorized();
+        if (!isValidAdmin(adminKey)) return ResponseEntity.status(403).body(ApiResponse.error("Unauthorized"));
 
         List<User> users = (role != null && !role.equals("ALL"))
             ? userRepository.findByRole(role)
@@ -272,11 +261,10 @@ public class AdminController {
 
     // ─── TOP FARMERS by revenue ────────────────────────────
     @GetMapping("/stats/top-farmers")
-    public ResponseEntity<ApiResponse<List<Map<String, Object>>>> 
-        getTopFarmers(
+    public ResponseEntity<?> getTopFarmers(
         @RequestHeader("X-Admin-Key") String adminKey) {
 
-        if (!isValidAdmin(adminKey)) return unauthorized();
+        if (!isValidAdmin(adminKey)) return ResponseEntity.status(403).body(ApiResponse.error("Unauthorized"));
 
         List<Order> paidOrders = orderRepository
             .findAll().stream()
@@ -324,12 +312,11 @@ public class AdminController {
 
     // ─── ALL LISTINGS ──────────────────────────────────────
     @GetMapping("/listings")
-    public ResponseEntity<ApiResponse<List<Listing>>> 
-        getAllListings(
+    public ResponseEntity<?> getAllListings(
         @RequestHeader("X-Admin-Key") String adminKey,
         @RequestParam(required = false) String status) {
 
-        if (!isValidAdmin(adminKey)) return unauthorized();
+        if (!isValidAdmin(adminKey)) return ResponseEntity.status(403).body(ApiResponse.error("Unauthorized"));
 
         List<Listing> listings = (status != null)
             ? listingRepository
@@ -341,11 +328,11 @@ public class AdminController {
 
     // ─── DELETE user (ban) ─────────────────────────────────
     @DeleteMapping("/users/{userId}")
-    public ResponseEntity<ApiResponse<?>> banUser(
+    public ResponseEntity<?> banUser(
         @RequestHeader("X-Admin-Key") String adminKey,
         @PathVariable String userId) {
 
-        if (!isValidAdmin(adminKey)) return unauthorized();
+        if (!isValidAdmin(adminKey)) return ResponseEntity.status(403).body(ApiResponse.error("Unauthorized"));
 
         userRepository.deleteById(userId);
         log.warn("Admin banned user: {}", userId);
@@ -355,8 +342,7 @@ public class AdminController {
 
     // ─── SUMMARY STATS (single call for dashboard) ────────
     @GetMapping("/stats/summary")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> 
-        getSummary(
+    public ResponseEntity<?> getSummary(
         @RequestHeader("X-Admin-Key") String adminKey) {
 
         if (!isValidAdmin(adminKey)) return unauthorized();
@@ -393,5 +379,9 @@ public class AdminController {
         summary.put("openRequests", openRequests);
 
         return ResponseEntity.ok(ApiResponse.success(summary));
+    }
+
+    private ResponseEntity<?> unauthorized() {
+        return ResponseEntity.status(403).body(ApiResponse.error("Unauthorized"));
     }
 }

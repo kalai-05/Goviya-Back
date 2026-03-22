@@ -49,6 +49,9 @@ buildNumber.properties
 .project
 .settings/
 .factorypath
-firebase-credentials.json
+# Local Override Files
+application.properties
 application.yml
+
+# Secrets
 firebase-credentials.json
