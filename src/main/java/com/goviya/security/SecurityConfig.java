@@ -35,9 +35,13 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/listings", "/api/prices", "/api/shops").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/payment/notify").permitAll()
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/listings").permitAll()
+                .requestMatchers("/api/prices").permitAll()
+                .requestMatchers("/api/shops").permitAll()
+                .requestMatchers("/api/payment/notify").permitAll()
+                .requestMatchers("/api/admin/**").permitAll()
+                .requestMatchers("/api/weather").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
                 .anyRequest().authenticated()
             )
@@ -50,7 +54,6 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // Enabling wildcard mappings for development (Constraint scaling planned natively later for Production environments)
         configuration.setAllowedOrigins(List.of("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
