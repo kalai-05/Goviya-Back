@@ -1,0 +1,91 @@
+{
+  "info": {
+    "name": "Goviya API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Send OTP",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"phone\": \"+94771234567\"\n}"
+            },
+            "url": {"raw": "{{baseUrl}}/api/auth/send-otp", "host": ["{{baseUrl}}"], "path": ["api","auth","send-otp"]}
+          }
+        },
+        {
+          "name": "Verify OTP",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"phone\": \"+94771234567\",\n    \"otp\": \"123456\"\n}"
+            },
+            "url": {"raw": "{{baseUrl}}/api/auth/verify-otp", "host": ["{{baseUrl}}"], "path": ["api","auth","verify-otp"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Listings",
+      "item": [
+        {
+          "name": "Get Listings",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/api/listings/?district=Colombo", "host": ["{{baseUrl}}"], "path": ["api","listings",""], "query": [{"key": "district", "value": "Colombo"}]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Prices",
+      "item": [
+        {
+          "name": "Get Prices",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/api/prices/", "host": ["{{baseUrl}}"], "path": ["api","prices",""]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Weather",
+      "item": [
+        {
+          "name": "Get Weather",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/api/weather/?district=Colombo", "host": ["{{baseUrl}}"], "path": ["api","weather",""], "query": [{"key": "district", "value": "Colombo"}]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "Shops",
+      "item": [
+        {
+          "name": "Get Shops",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "{{baseUrl}}/api/shops/?district=Colombo", "host": ["{{baseUrl}}"], "path": ["api","shops",""], "query": [{"key": "district", "value": "Colombo"}]}
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    }
+  ]
+}
