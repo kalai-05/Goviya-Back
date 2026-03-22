@@ -1,52 +1,34 @@
 package com.goviya.model;
 
-import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
+@Document(collection = "shop_products")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "shop_products")
 public class ShopProduct {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shop_id", nullable = false)
-    private User shop;
+    private String shopId;
+    private String shopName;
 
-    @Column(name = "product_name")
     private String productName;
-
-    @Enumerated(EnumType.STRING)
-    private Category category;
-
+    private String category;   // "FERTILIZER","SEED","PESTICIDE","TOOL"
     private Double price;
     private String unit;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "stock_status")
-    private StockStatus stockStatus;
-
-    @Column(name = "image_url")
+    private String stockStatus; // "IN", "LOW", "OUT"
     private String imageUrl;
 
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
+    @CreatedDate
     private LocalDateTime createdAt;
 
-    public enum Category {
-        FERTILIZER, SEED, PESTICIDE, TOOL
-    }
-
-    public enum StockStatus {
-        IN, LOW, OUT
-    }
+    @LastModifiedDate
+    private LocalDateTime lastModifiedAt;
 }

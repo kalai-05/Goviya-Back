@@ -27,7 +27,7 @@ public class JwtFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         // Opts cleanly omitting Security Validation context overhead mappings completely if hitting designated auth endpoints 
         String path = request.getRequestURI();
-        return path.startsWith("/api/auth/");
+        return path.equals("/api/auth/send-otp") || path.equals("/api/auth/verify-otp") || path.equals("/api/auth/firebase-login");
     }
 
     @Override

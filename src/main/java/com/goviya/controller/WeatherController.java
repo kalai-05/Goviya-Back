@@ -1,15 +1,26 @@
 package com.goviya.controller;
 
-import org.springframework.http.ResponseEntity;
+import com.goviya.dto.ApiResponse;
+import com.goviya.service.WeatherService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import java.util.Map;
+
+
 
 @RestController
 @RequestMapping("/api/weather")
+@RequiredArgsConstructor
 public class WeatherController {
 
-    @GetMapping
-    public ResponseEntity<?> getWeather(@RequestParam String district) {
-        return ResponseEntity.ok(Map.of("success", true, "message", "OpenWeatherMap logic dispatched retrieving current arrays seamlessly mapping " + district));
+    private final WeatherService weatherService;
+
+    private String getCurrentUserId(Authentication authentication) {
+        return authentication.getName();
+    }
+
+    @GetMapping("/")
+    public ApiResponse<?> getWeather(@RequestParam String district) {
+        return ApiResponse.success(weatherService.getWeather(district));
     }
 }

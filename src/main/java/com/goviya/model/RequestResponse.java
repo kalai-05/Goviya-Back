@@ -1,47 +1,30 @@
 package com.goviya.model;
 
-import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
+@Document(collection = "request_responses")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "request_responses")
 public class RequestResponse {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "request_id", nullable = false)
-    private BuyerRequest request;
+    private String requestId;
+    private String farmerId;
+    private String farmerName;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "farmer_id", nullable = false)
-    private User farmer;
-
-    @Column(name = "offered_price_per_kg")
     private Double offeredPricePerKg;
-
-    @Column(name = "quantity_kg")
     private Double quantityKg;
-
     private String message;
 
-    @Enumerated(EnumType.STRING)
-    private Status status;
+    private String status;  // "PENDING", "ACCEPTED", "DECLINED"
 
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
+    @CreatedDate
     private LocalDateTime createdAt;
-
-    public enum Status {
-        PENDING, ACCEPTED, DECLINED
-    }
 }

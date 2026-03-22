@@ -1,35 +1,50 @@
 package com.goviya.controller;
 
-import org.springframework.http.ResponseEntity;
+import com.goviya.dto.ApiResponse;
+import com.goviya.dto.CreateOrderRequest;
+import com.goviya.service.OrderService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import java.util.Map;
-import java.util.UUID;
+
+
 
 @RestController
 @RequestMapping("/api/orders")
+@RequiredArgsConstructor
 public class OrderController {
 
-    @PostMapping
+    private final OrderService orderService;
+
+    private String getCurrentUserId(Authentication authentication) {
+        return authentication.getName();
+    }
+
+    @PostMapping("/")
     @PreAuthorize("hasRole('BUYER')")
-    public ResponseEntity<?> placeOrder(@RequestBody Map<String, Object> body) {
-        // Will initialize 2.5% total commission and push state to PENDING mapping
-        return ResponseEntity.ok(Map.of("success", true, "message", "Secured global transaction sequence placed smoothly without issue."));
+    public ApiResponse<?> createOrder(@Valid @RequestBody CreateOrderRequest request, Authentication authentication) {
+        return ApiResponse.success(orderService.createOrder(getCurrentUserId(authentication), request.getListingId(), request.getQuantityKg()));
     }
 
     @GetMapping("/my")
-    public ResponseEntity<?> getMyOrders() {
-        return ResponseEntity.ok(Map.of("success", true, "message", "Your personal transaction invoice records resolved cleanly."));
+    public ApiResponse<?> getMyOrders(Authentication authentication) {
+        String role = authentication.getAuthorities().stream()
+            .findFirst()
+            .map(a -> a.getAuthority().replace("ROLE_", ""))
+            .orElse("BUYER");
+        return ApiResponse.success(orderService.getMyOrders(getCurrentUserId(authentication), role));
     }
 
     @PutMapping("/{id}/confirm")
     @PreAuthorize("hasRole('FARMER')")
-    public ResponseEntity<?> confirmOrder(@PathVariable UUID id) {
-        return ResponseEntity.ok(Map.of("success", true, "message", "Order correctly flagged CONFIRMED signaling logic overrides."));
+    public ApiResponse<?> confirmOrder(@PathVariable String id, Authentication authentication) {
+        return ApiResponse.success(orderService.confirmOrder(id, getCurrentUserId(authentication)));
     }
 
     @PutMapping("/{id}/complete")
-    public ResponseEntity<?> completeOrder(@PathVariable UUID id) {
-        return ResponseEntity.ok(Map.of("success", true, "message", "Terminal fulfillment marker mapped locking payment release structures securely."));
+    public ApiResponse<?> completeOrder(@PathVariable String id) {
+        return ApiResponse.success(orderService.completeOrder(id));
     }
 }

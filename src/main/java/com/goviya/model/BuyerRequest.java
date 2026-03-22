@@ -1,50 +1,36 @@
 package com.goviya.model;
 
-import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
+@Document(collection = "buyer_requests")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "buyer_requests")
 public class BuyerRequest {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "buyer_id", nullable = false)
-    private User buyer;
+    private String buyerId;
+    private String buyerName;
 
-    @Column(name = "crop_name")
     private String cropName;
-
-    @Column(name = "quantity_kg")
     private Double quantityKg;
-
-    @Column(name = "max_price_per_kg")
     private Double maxPricePerKg;
-
     private String district;
     private String description;
 
-    @Enumerated(EnumType.STRING)
-    private Status status;
-
-    @Column(name = "expires_at")
+    private String status;  // "OPEN", "FILLED", "CLOSED"
     private LocalDateTime expiresAt;
 
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
+    @CreatedDate
     private LocalDateTime createdAt;
 
-    public enum Status {
-        OPEN, FILLED, CLOSED
-    }
+    @LastModifiedDate
+    private LocalDateTime lastModifiedAt;
 }

@@ -1,45 +1,29 @@
 package com.goviya.model;
 
-import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
+@Document(collection = "shop_inquiries")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "shop_inquiries")
 public class ShopInquiry {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shop_id", nullable = false)
-    private User shop;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id", nullable = false)
-    private ShopProduct product;
-
+    private String shopId;
+    private String userId;
+    private String userName;
+    private String userRole;
+    private String productId;
+    private String productName;
     private String message;
+    private String status;  // "NEW", "REPLIED", "CLOSED"
 
-    @Enumerated(EnumType.STRING)
-    private Status status;
-
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
+    @CreatedDate
     private LocalDateTime createdAt;
-
-    public enum Status {
-        NEW, REPLIED, CLOSED
-    }
 }

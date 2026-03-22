@@ -49,3 +49,6 @@ buildNumber.properties
 .project
 .settings/
 .factorypath
+firebase-credentials.json
+application.yml
+firebase-credentials.json
