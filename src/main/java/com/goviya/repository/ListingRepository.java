@@ -11,5 +11,6 @@ public interface ListingRepository extends MongoRepository<Listing, String> {
         String status, String district, String crop);
     List<Listing> findByFarmerIdOrderByCreatedAtDesc(String farmerId);
     List<Listing> findByStatusAndExpiresAtBefore(String status, LocalDateTime now);
+    List<Listing> findByStatusAndCropNameContainingIgnoreCaseOrderByCreatedAtDesc(String status, String crop);
     List<Listing> findByStatusOrderByCreatedAtDesc(String status);
 }

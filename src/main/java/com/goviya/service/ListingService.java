@@ -23,10 +23,18 @@ public class ListingService {
 
     public List<ListingDto> getListings(String district, String crop) {
         List<Listing> listings;
-        if (crop != null && !crop.isEmpty()) {
-            listings = listingRepository.findByStatusAndDistrictAndCropNameContainingIgnoreCaseOrderByCreatedAtDesc("ACTIVE", district, crop);
+        if (district != null && !district.isEmpty()) {
+            if (crop != null && !crop.isEmpty()) {
+                listings = listingRepository.findByStatusAndDistrictAndCropNameContainingIgnoreCaseOrderByCreatedAtDesc("ACTIVE", district, crop);
+            } else {
+                listings = listingRepository.findByStatusAndDistrictOrderByCreatedAtDesc("ACTIVE", district);
+            }
         } else {
-            listings = listingRepository.findByStatusAndDistrictOrderByCreatedAtDesc("ACTIVE", district);
+            if (crop != null && !crop.isEmpty()) {
+                listings = listingRepository.findByStatusAndCropNameContainingIgnoreCaseOrderByCreatedAtDesc("ACTIVE", crop);
+            } else {
+                listings = listingRepository.findByStatusOrderByCreatedAtDesc("ACTIVE");
+            }
         }
         return listings.stream().map(this::mapToDto).collect(Collectors.toList());
     }

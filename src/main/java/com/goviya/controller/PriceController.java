@@ -1,15 +1,26 @@
 package com.goviya.controller;
 
-import org.springframework.http.ResponseEntity;
+import com.goviya.dto.ApiResponse;
+import com.goviya.service.PriceService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import java.util.Map;
+
+
 
 @RestController
 @RequestMapping("/api/prices")
+@RequiredArgsConstructor
 public class PriceController {
 
-    @GetMapping
-    public ResponseEntity<?> getPrices(@RequestParam(required = false) String crop) {
-        return ResponseEntity.ok(Map.of("success", true, "message", "Current local market values returned securely out from database mappings successfully."));
+    private final PriceService priceService;
+
+    private String getCurrentUserId(Authentication authentication) {
+        return authentication.getName();
+    }
+
+    @GetMapping("/")
+    public ApiResponse<?> getTodayPrices(@RequestParam(required = false) String crop) {
+        return ApiResponse.success(priceService.getTodayPrices(crop));
     }
 }

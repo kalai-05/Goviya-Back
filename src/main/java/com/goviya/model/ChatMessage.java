@@ -1,41 +1,27 @@
 package com.goviya.model;
 
-import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
+@Document(collection = "chat_messages")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "chat_messages")
 public class ChatMessage {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_id", nullable = false)
-    private User sender;
+    private String senderId;
+    private String senderName;
+    private String senderRole;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receiver_id", nullable = false)
-    private User receiver;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
-    private Order order;
-
+    private String receiverId;
     private String message;
-
-    @Column(name = "is_read")
     private Boolean isRead;
+    private String orderId;
 
-    @CreationTimestamp
-    @Column(name = "sent_at", updatable = false)
     private LocalDateTime sentAt;
 }

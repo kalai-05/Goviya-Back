@@ -1,45 +1,65 @@
 package com.goviya.controller;
 
-import org.springframework.http.ResponseEntity;
+import com.goviya.dto.ApiResponse;
+import com.goviya.dto.CreateProductRequest;
+import com.goviya.dto.CreateInquiryRequest;
+import com.goviya.service.ShopService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import java.util.Map;
-import java.util.UUID;
+
+
 
 @RestController
 @RequestMapping("/api/shops")
+@RequiredArgsConstructor
 public class ShopController {
 
-    @GetMapping
-    public ResponseEntity<?> getShops(@RequestParam(required = false) String district) {
-        return ResponseEntity.ok(Map.of("success", true, "message", "Active global shop arrays returned successfully."));
+    private final ShopService shopService;
+
+    private String getCurrentUserId(Authentication authentication) {
+        return authentication.getName();
+    }
+
+    @GetMapping("/")
+    public ApiResponse<?> getShopsByDistrict(@RequestParam String district) {
+        return ApiResponse.success(shopService.getShopsByDistrict(district));
     }
 
     @GetMapping("/{shopId}/products")
-    public ResponseEntity<?> getShopProducts(@PathVariable UUID shopId) {
-        return ResponseEntity.ok(Map.of("success", true, "message", "Shop configuration items resolved successfully mapped back natively."));
+    public ApiResponse<?> getShopProducts(@PathVariable String shopId) {
+        return ApiResponse.success(shopService.getShopProducts(shopId));
     }
 
     @PostMapping("/products")
     @PreAuthorize("hasRole('SHOP')")
-    public ResponseEntity<?> addProduct(@RequestBody Map<String, Object> body) {
-        return ResponseEntity.ok(Map.of("success", true, "message", "Item successfully tied back to Authenticated API boundaries."));
+    public ApiResponse<?> createProduct(@Valid @RequestBody CreateProductRequest request, Authentication authentication) {
+        return ApiResponse.success(shopService.createProduct(getCurrentUserId(authentication), request));
     }
 
     @PutMapping("/products/{id}")
     @PreAuthorize("hasRole('SHOP')")
-    public ResponseEntity<?> updateProduct(@PathVariable UUID id, @RequestBody Map<String, Object> body) {
-        return ResponseEntity.ok(Map.of("success", true, "message", "Product modifications completely pushed sequentially over to the runtime container."));
+    public ApiResponse<?> updateProduct(@PathVariable String id, @Valid @RequestBody CreateProductRequest request, Authentication authentication) {
+        return ApiResponse.success(shopService.updateProduct(id, getCurrentUserId(authentication), request));
+    }
+
+    @DeleteMapping("/products/{id}")
+    @PreAuthorize("hasRole('SHOP')")
+    public ApiResponse<?> deleteProduct(@PathVariable String id, Authentication authentication) {
+        shopService.deleteProduct(id, getCurrentUserId(authentication));
+        return ApiResponse.success("Product deleted successfully");
     }
 
     @PostMapping("/inquiries")
-    public ResponseEntity<?> createInquiry(@RequestBody Map<String, Object> body) {
-        return ResponseEntity.ok(Map.of("success", true, "message", "Inquiry notification triggered accurately securely linking cross dependencies mappings."));
+    public ApiResponse<?> createInquiry(@Valid @RequestBody CreateInquiryRequest request, Authentication authentication) {
+        return ApiResponse.success(shopService.createInquiry(getCurrentUserId(authentication), request));
     }
 
     @GetMapping("/inquiries")
     @PreAuthorize("hasRole('SHOP')")
-    public ResponseEntity<?> getMyShopInquiries() {
-        return ResponseEntity.ok(Map.of("success", true, "message", "Aggregated Inbox array mapped successfully correctly checking shop context logic."));
+    public ApiResponse<?> getMyInquiries(Authentication authentication) {
+        return ApiResponse.success(shopService.getShopInquiries(getCurrentUserId(authentication)));
     }
 }

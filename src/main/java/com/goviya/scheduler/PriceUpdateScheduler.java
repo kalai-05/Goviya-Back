@@ -1,78 +1,70 @@
 package com.goviya.scheduler;
 
+import com.goviya.dto.MarketPriceDto;
+import com.goviya.service.NotificationService;
+import com.goviya.service.PriceService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
+@Slf4j
+@RequiredArgsConstructor
 public class PriceUpdateScheduler {
 
-    private static final Logger log = Logger.getLogger(PriceUpdateScheduler.class.getName());
+    private final PriceService priceService;
+    private final NotificationService notificationService;
+    private final RestTemplate restTemplate;
 
-    // @Autowired
-    // private MarketPriceRepository marketPriceRepository;
-    
-    // @Autowired
-    // private UserRepository userRepository;
-    
-    // @Autowired
-    // private FirebaseMessagingService fcmService;
-
-    /**
-     * Executes at 6:00 AM daily
-     */
     @Scheduled(cron = "0 0 6 * * *")
-    public void fetchAndUpdateDailyPrices() {
-        log.info("[SCHEDULER] Running PriceUpdateScheduler (6:00 AM)...");
-
-        // Step 1: Fetch public prices from Manning Market Colombo API
-        /*
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<List<Map<String, Object>>> response = restTemplate.getForEntity(
-                "https://api.manningmarket.local/v1/daily-prices", List.class);
-        */
-
-        // Step 2: Iterate and save to market_prices table
-        /*
-        LocalDate today = LocalDate.now();
-        List<MarketPrice> newPrices = new ArrayList<>();
+    public void updateMarketPrices() {
+        log.info("Starting scheduled market price update...");
         
-        for(Map<String, Object> item : response.getBody()) {
-            String crop = (String) item.get("cropName");
-            Double newPrice = (Double) item.get("pricePerKg");
-            
-            // Step 3: Compare with yesterday's price
-            MarketPrice yesterdayPriceLog = marketPriceRepository.findByCropNameAndPriceDate(crop, today.minusDays(1));
-            Double prevPrice = yesterdayPriceLog != null ? yesterdayPriceLog.getPricePerKg() : newPrice;
-            
-            MarketPrice newLog = MarketPrice.builder()
-                .cropName(crop)
-                .pricePerKg(newPrice)
-                .prevPricePerKg(prevPrice)
-                .source(MarketPrice.Source.MANNING)
-                .priceDate(today)
-                .build();
-                
-            newPrices.add(newLog);
+        Map<String, Double> prices = new HashMap<>();
+        prices.put("Tomato", generateRealisticPrice(60.0, 120.0));
+        prices.put("Cabbage", generateRealisticPrice(40.0, 80.0));
+        prices.put("Onion", generateRealisticPrice(100.0, 200.0));
+        prices.put("Chilli", generateRealisticPrice(200.0, 400.0));
+        prices.put("Carrot", generateRealisticPrice(60.0, 100.0));
+        prices.put("Garlic", generateRealisticPrice(300.0, 500.0));
+        prices.put("Potato", generateRealisticPrice(80.0, 140.0));
+        prices.put("Leeks", generateRealisticPrice(100.0, 200.0));
+        prices.put("Beans", generateRealisticPrice(120.0, 240.0));
+        prices.put("Beet", generateRealisticPrice(50.0, 90.0));
 
-            // Step 4: If price changed by more than 10%, fire FCM Push to all FARMER users
-            if (prevPrice > 0) {
-                double diffPercentage = ((newPrice - prevPrice) / prevPrice) * 100.0;
-                
-                if (diffPercentage >= 10.0) {
-                    log.info("Spike detected! " + crop + " went up by " + String.format("%.1f", diffPercentage) + "%");
-                    
-                    // List<User> farmers = userRepository.findAllByRole(User.Role.FARMER);
-                    // String message = crop + " price up " + String.format("%.0f", diffPercentage) + "% - good time to sell!";
-                    // fcmService.sendToMultipleUsers(farmers, "Price Spike Alert!", message);
-                }
+        List<MarketPriceDto> dtos = new ArrayList<>();
+        prices.forEach((crop, price) -> {
+            MarketPriceDto dto = new MarketPriceDto();
+            dto.setCropName(crop);
+            dto.setPricePerKg(price);
+            dto.setSource("Manning Market (Simulated)");
+            dtos.add(dto);
+        });
+
+        // Save all prices
+        priceService.savePrices(dtos);
+        
+        // Fetch to check change percent after save
+        List<MarketPriceDto> latestPrices = priceService.getTodayPrices(null);
+        
+        for (MarketPriceDto latest : latestPrices) {
+            if (latest.getChangePercent() != null && latest.getChangePercent() >= 10.0) {
+                notificationService.notifyPriceAlert(latest.getCropName(), latest.getChangePercent());
             }
         }
-        
-        marketPriceRepository.saveAll(newPrices);
-        */
 
-        log.info("[SCHEDULER] PriceUpdateScheduler finished mapping successfully.");
+        log.info("Market price update completed successfully.");
+    }
+
+    private Double generateRealisticPrice(double min, double max) {
+        double val = min + (Math.random() * (max - min));
+        return Math.round(val / 5.0) * 5.0;
     }
 }

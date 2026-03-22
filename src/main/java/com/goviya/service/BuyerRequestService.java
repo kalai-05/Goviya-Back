@@ -117,6 +117,29 @@ public class BuyerRequestService {
         return orderService.createOrderFromResponse(response);
     }
 
+    public BuyerRequestDto updateRequest(String requestId, String buyerId, CreateRequestRequest request) {
+        BuyerRequest br = buyerRequestRepository.findById(requestId).orElseThrow(() -> new RuntimeException("Request not found"));
+        if (!br.getBuyerId().equals(buyerId)) {
+            throw new RuntimeException("Not authorized");
+        }
+        
+        br.setCropName(request.getCropName());
+        br.setQuantityKg(request.getQuantityKg());
+        br.setMaxPricePerKg(request.getMaxPricePerKg());
+        br.setDistrict(request.getDistrict());
+        br.setDescription(request.getDescription());
+        
+        return mapToDto(buyerRequestRepository.save(br));
+    }
+
+    public void deleteRequest(String requestId, String buyerId) {
+        BuyerRequest br = buyerRequestRepository.findById(requestId).orElseThrow(() -> new RuntimeException("Request not found"));
+        if (!br.getBuyerId().equals(buyerId)) {
+            throw new RuntimeException("Not authorized");
+        }
+        buyerRequestRepository.delete(br);
+    }
+
     private BuyerRequestDto mapToDto(BuyerRequest br) {
         BuyerRequestDto dto = new BuyerRequestDto();
         dto.setId(br.getId());

@@ -1,45 +1,33 @@
 package com.goviya.model;
 
-import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.index.Indexed;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
+@Document(collection = "users")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "users")
 public class User {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String id;
 
-    @Column(nullable = false, unique = true)
+    @Indexed(unique = true)
     private String phone;
 
     private String name;
-
-    @Enumerated(EnumType.STRING)
-    private Role role;
-
+    private String role;       // "FARMER", "BUYER", "SHOP"
     private String district;
-
-    private String language;
-
-    @Column(name = "fcm_token")
+    private String language;   // "si", "ta", "en"
     private String fcmToken;
-
     private Float rating;
+    private Integer totalDeals;
+    private Double totalEarned;
 
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
+    @CreatedDate
     private LocalDateTime createdAt;
-
-    public enum Role {
-        FARMER, BUYER, SHOP
-    }
 }
